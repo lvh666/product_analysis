@@ -1,10 +1,10 @@
 <template>
   <div class="main--container">
     <el-row>
-      <el-col :span="12" class="main">
+      <el-col :span="14" class="main">
         <HomeLeft />
       </el-col>
-      <el-col :span="5" :offset="1" class="main--aside">
+      <el-col :span="7" :offset="1" class="main--aside">
         <HomeRight />
       </el-col>
     </el-row>

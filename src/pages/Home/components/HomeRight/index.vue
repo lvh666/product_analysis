@@ -1,7 +1,7 @@
 <template>
   <div class="recommended-title">
     <div class="title">
-      <span>推荐软件</span>
+      <span>推荐帖子</span>
     </div>
     <ul class="list">
       <li v-for="item in data" :key="item.id">

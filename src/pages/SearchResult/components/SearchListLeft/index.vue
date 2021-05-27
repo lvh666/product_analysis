@@ -7,7 +7,7 @@
             <div class="setting-icon">
               <i class="el-icon-tickets"></i>
             </div>
-            <span>文章</span></a
+            <span>软件</span></a
           >
         </li>
       </ul>

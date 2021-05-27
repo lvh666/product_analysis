@@ -2,17 +2,14 @@
   <ul class="note-list">
     <li v-for="item in data" :key="item.id">
       <div>
-        <a :href="`#/product/${item.id}`" class="title">{{ item.title }}</a>
-        <p class="abstract">{{ item.content }}</p>
+        <a :href="`#/product/${item.id}`" class="title">{{ item.name }}</a>
+        <p class="abstract">{{ item.desc }}</p>
         <div class="meta">
-          <span class="jsd-meta">
-            <i class="el-icon-view"></i> {{ item.look }}
-          </span>
-          <a :href="`#/product/${item.id}`">{{ item.writter }}</a>
+          <a :href="`#/product/${item.id}`">{{ item.category.name }}</a>
+          <span><i class="el-icon-success"></i> {{ item.likeCount }}</span>
           <a :href="`#/product/${item.id}`">
-            <i class="el-icon-s-comment"></i> {{ item.comment }}
+            <i class="el-icon-error"></i> {{ item.dislikeCount }}
           </a>
-          <span><i class="el-icon-star-on"></i> {{ item.good }}</span>
         </div>
       </div>
     </li>
@@ -20,53 +17,31 @@
 </template>
 
 <script>
+import { getSoftware } from "@/api/article";
+
 export default {
   name: "HomeLeft",
   data() {
     return {
-      data: [
-        {
-          id: "s-1",
-          title: "《穆斯林的葬礼》：人的心中一旦有了信仰，就会不惜代价",
-          content:
-            "您好，欢迎来到筱北读书，今天为您解读的一本书是《穆斯林的葬礼》，这本书大约50万字，我会用20分钟的时间为你讲解书中的精髓：在爱恨情仇，悲欢离合...",
-          writter: "董筱北",
-          comment: 26,
-          good: 154,
-          look: 1000,
-        },
-        {
-          id: "s-2",
-          title: "《穆斯林的葬礼》：人的心中一旦有了信仰，就会不惜代价",
-          content:
-            "您好，欢迎来到筱北读书，今天为您解读的一本书是《穆斯林的葬礼》，这本书大约50万字，我会用20分钟的时间为你讲解书中的精髓：在爱恨情仇，悲欢离合...",
-          writter: "董筱北",
-          comment: 26,
-          good: 154,
-          look: 1000,
-        },
-        {
-          id: "s-3",
-          title: "《穆斯林的葬礼》：人的心中一旦有了信仰，就会不惜代价",
-          content:
-            "您好，欢迎来到筱北读书，今天为您解读的一本书是《穆斯林的葬礼》，这本书大约50万字，我会用20分钟的时间为你讲解书中的精髓：在爱恨情仇，悲欢离合...",
-          writter: "董筱北",
-          comment: 26,
-          good: 154,
-          look: 1000,
-        },
-        {
-          id: "s-4",
-          title: "《穆斯林的葬礼》：人的心中一旦有了信仰，就会不惜代价",
-          content:
-            "您好，欢迎来到筱北读书，今天为您解读的一本书是《穆斯林的葬礼》，这本书大约50万字，我会用20分钟的时间为你讲解书中的精髓：在爱恨情仇，悲欢离合...",
-          writter: "董筱北",
-          comment: 26,
-          good: 154,
-          look: 1000,
-        },
-      ],
+      loading: false,
+      data: [],
     };
+  },
+  created() {
+    this.getSoftwareItem("");
+  },
+  methods: {
+    async getSoftwareItem(query) {
+      this.loading = true;
+      const res = await getSoftware({
+        curPage: 1,
+        pageSize: 4,
+        key: query,
+        categoryId: 0,
+      });
+      this.data = res.data.records;
+      this.loading = false;
+    },
   },
 };
 </script>

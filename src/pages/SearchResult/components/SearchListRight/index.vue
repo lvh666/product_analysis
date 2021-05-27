@@ -2,114 +2,120 @@
   <div class="search-content">
     <div class="sort-type">
       <a :class="{ active: isActive === 0 }" @click="changeClass(0)">
-        综合排序 ·
+        综合排序
       </a>
-      <a :class="{ active: isActive === 1 }" @click="changeClass(1)">
-        热门文章 ·
-      </a>
-      <a :class="{ active: isActive === 2 }" @click="changeClass(2)">
-        最新发布 ·
-      </a>
-      <a :class="{ active: isActive === 3 }" @click="changeClass(3)">
-        最新评论
+      <a
+        v-for="item in types"
+        :key="item.id"
+        :class="{ active: isActive === item.id }"
+        @click="changeClass(item.id)"
+      >
+        · {{ item.name }}
       </a>
     </div>
-    <div class="result">2456 个结果</div>
-    <ul>
+    <div class="result">{{ total }} 个结果</div>
+    <ul v-loading="loading">
       <li v-for="item in data" :key="item.id">
         <div>
           <div class="author">
             <a class="avatar">
-              <el-avatar size="small" :src="item.avatar"></el-avatar>
+              <el-avatar size="small" :src="item.user.avatar"></el-avatar>
             </a>
             <div class="info">
-              <a class="nickname">{{ item.writter }}</a>
-              <span class="time"> 2 年前 </span>
+              <a class="nickname">{{ item.user.username }}</a>
+              <span class="time">
+                {{ dateFormat(new Date(item.createTime)) }}
+              </span>
             </div>
           </div>
           <a :href="`#/product/${item.id}`" class="title">
-            {{ item.title }}
+            {{ item.name }}
           </a>
-          <p class="abstract">{{ item.content }}</p>
+          <p class="abstract">{{ item.desc }}</p>
           <div class="meta">
-            <span class="jsd-meta">
-              <i class="el-icon-view"></i> {{ item.look }}
-            </span>
+            <a :href="`#/product/${item.id}`">{{ item.category.name }}</a>
+            <span><i class="el-icon-success"></i> {{ item.likeCount }}</span>
             <a :href="`#/product/${item.id}`">
-              <i class="el-icon-s-comment"></i> {{ item.comment }}
+              <i class="el-icon-error"></i> {{ item.dislikeCount }}
             </a>
-            <span><i class="el-icon-star-on"></i> {{ item.good }}</span>
           </div>
         </div>
       </li>
     </ul>
     <div class="pagination" v-if="data.length">
-      <el-pagination layout="prev, pager, next" :total="100"></el-pagination>
+      <el-pagination
+        layout="prev, pager, next"
+        :current-page="currentPage"
+        @current-change="handleCurrentChange"
+        :total="total"
+      ></el-pagination>
     </div>
   </div>
 </template>
 
 <script>
+import { getSoftware } from "@/api/article";
+import { getSoftwareTypes } from "@/api/software";
+
 export default {
   name: "SearchListRight",
   data() {
     return {
-      data: [
-        {
-          id: "s-1",
-          avatar:
-            "https://upload.jianshu.io/users/upload_avatars/14222244/2d01e759-514a-421a-ac8d-8d97ec992af5?imageMogr2/auto-orient/strip|imageView2/1/w/96/h/96/format/webp",
-          title: "《穆斯林的葬礼》：人的心中一旦有了信仰，就会不惜代价",
-          content:
-            "您好，欢迎来到筱北读书，今天为您解读的一本书是《穆斯林的葬礼》，这本书大约50万字，我会用20分钟的时间为你讲解书中的精髓：在爱恨情仇，悲欢离合...",
-          writter: "董筱北",
-          comment: 26,
-          good: 154,
-          look: 1000,
-        },
-        {
-          id: "s-2",
-          avatar:
-            "https://upload.jianshu.io/users/upload_avatars/14222244/2d01e759-514a-421a-ac8d-8d97ec992af5?imageMogr2/auto-orient/strip|imageView2/1/w/96/h/96/format/webp",
-          title: "《穆斯林的葬礼》：人的心中一旦有了信仰，就会不惜代价",
-          content:
-            "您好，欢迎来到筱北读书，今天为您解读的一本书是《穆斯林的葬礼》，这本书大约50万字，我会用20分钟的时间为你讲解书中的精髓：在爱恨情仇，悲欢离合...",
-          writter: "董筱北",
-          comment: 26,
-          good: 154,
-          look: 1000,
-        },
-        {
-          id: "s-3",
-          avatar:
-            "https://upload.jianshu.io/users/upload_avatars/14222244/2d01e759-514a-421a-ac8d-8d97ec992af5?imageMogr2/auto-orient/strip|imageView2/1/w/96/h/96/format/webp",
-          title: "《穆斯林的葬礼》：人的心中一旦有了信仰，就会不惜代价",
-          content:
-            "您好，欢迎来到筱北读书，今天为您解读的一本书是《穆斯林的葬礼》，这本书大约50万字，我会用20分钟的时间为你讲解书中的精髓：在爱恨情仇，悲欢离合...",
-          writter: "董筱北",
-          comment: 26,
-          good: 154,
-          look: 1000,
-        },
-        {
-          id: "s-4",
-          avatar:
-            "https://upload.jianshu.io/users/upload_avatars/14222244/2d01e759-514a-421a-ac8d-8d97ec992af5?imageMogr2/auto-orient/strip|imageView2/1/w/96/h/96/format/webp",
-          title: "《穆斯林的葬礼》：人的心中一旦有了信仰，就会不惜代价",
-          content:
-            "您好，欢迎来到筱北读书，今天为您解读的一本书是《穆斯林的葬礼》，这本书大约50万字，我会用20分钟的时间为你讲解书中的精髓：在爱恨情仇，悲欢离合...",
-          writter: "董筱北",
-          comment: 26,
-          good: 154,
-          look: 1000,
-        },
-      ],
+      search: null,
+      total: 0,
+      data: [],
+      types: [],
       isActive: 0,
+      loading: true,
+      currentPage: 1,
     };
+  },
+  mounted() {
+    this.search = this.$route.params.value || "";
+    this.getSoftwareItem();
+    this.getTypes();
   },
   methods: {
     changeClass(index) {
       this.isActive = index;
+      this.getSoftwareItem();
+    },
+    handleCurrentChange(val) {
+      this.currentPage = val;
+      this.getSoftwareItem();
+    },
+    async getSoftwareItem() {
+      this.loading = true;
+      const res = await getSoftware({
+        curPage: this.currentPage,
+        pageSize: 4,
+        key: this.search,
+        categoryId: this.isActive,
+      });
+      this.data = res.data.records;
+      this.total = res.data.total;
+      this.loading = false;
+    },
+    async getTypes() {
+      const res = await getSoftwareTypes({
+        curPage: 1,
+        pageSize: 30,
+        categoryId: 0,
+      });
+      this.types = res.data.records;
+    },
+    dateFormat(date) {
+      return (
+        date.getFullYear() +
+        "-" +
+        (date.getMonth() + 1) +
+        "-" +
+        date.getDate() +
+        " " +
+        date.getHours() +
+        ":" +
+        date.getMinutes()
+      );
     },
   },
 };

@@ -13,11 +13,11 @@
                 ref="form"
                 class="demo-ruleForm from"
               >
-                <el-form-item label="手机号" prop="username">
-                  <el-input
-                    @change="checkPhone"
-                    v-model="form.username"
-                  ></el-input>
+                <el-form-item label="手机号" prop="phone">
+                  <el-input v-model="form.phone"></el-input>
+                </el-form-item>
+                <el-form-item label="用户名" prop="username">
+                  <el-input v-model="form.username"></el-input>
                 </el-form-item>
                 <el-form-item label="输入密码" prop="password">
                   <el-tooltip
@@ -61,6 +61,7 @@
 
 <script>
 import CheckedImg from "../CheckedImg";
+import { register } from "@/api/user";
 
 export default {
   name: "Registered",
@@ -108,6 +109,7 @@ export default {
     };
     return {
       form: {
+        phone: "",
         username: "",
         password: "",
         checkPassword: "",
@@ -115,12 +117,16 @@ export default {
         check: 1,
         check1: 0,
       },
+      imageUrl: "",
       status: false,
       checked: true,
       rules: {
-        username: [
+        phone: [
           { required: true, message: "请输入手机号", trigger: "blur" },
           { validator: validatePhone, trigger: "blur" },
+        ],
+        username: [
+          { required: true, message: "请输入用户名", trigger: "blur" },
         ],
         password: [
           { validator: validatePass, required: true, trigger: "blur" },
@@ -138,28 +144,26 @@ export default {
       this.$refs["form"].validateField("check1");
     },
     submitForm(formName) {
-      this.$refs[formName].validate((valid) => {
+      this.$refs[formName].validate(async (valid) => {
         if (valid && this.check1 !== 0) {
           let item = {
             password: this.form.password,
-            phoneNumber: this.form.username,
+            phone: this.form.phone,
+            avatar:
+              "http://qzapp.qlogo.cn/qzapp/100410602/00D99DE57DE37E160EA9D7FB62AD74CD/100?imageMogr2/auto-orient/strip|imageView2/1/w/120/h/120",
+            gender: 0,
+            role: 1,
+            username: this.form.username,
           };
-          this.$api.post(
-            "user/register",
-            item,
-            (res) => {
-              if (res.data.msg === "注册成功") {
-                this.$router.push({
-                  path: `/login`,
-                });
-              } else {
-                this.$message.error("注册失败!");
-              }
-            },
-            (err) => {
-              console.log(err);
-            }
-          );
+          const user = await register(item);
+          console.log(user);
+          if (user.msg === "success") {
+            this.$router.push({
+              path: `/login`,
+            });
+          } else {
+            this.$message.error("注册失败!");
+          }
         } else {
           console.log("error submit!!");
           return false;
@@ -214,5 +218,28 @@ a {
 a:link,
 a:visited {
   color: #5584ff;
+}
+.avatar-uploader .el-upload {
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.avatar-uploader .el-upload:hover {
+  border-color: #409eff;
+}
+.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 178px;
+  height: 178px;
+  line-height: 178px;
+  text-align: center;
+}
+.avatar {
+  width: 178px;
+  height: 178px;
+  display: block;
 }
 </style>
