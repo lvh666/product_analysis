@@ -12,7 +12,7 @@
     <el-button style="margin-left: 10px" type="primary" @click="addTypeItem">
       添加
     </el-button>
-    <el-table v-loading="loading" :data="tableData">
+    <el-table v-loading="loading" :data="tableData" style="margin-bottom: 30px">
       <el-table-column prop="id" label="ID" width="200"> </el-table-column>
       <el-table-column prop="name" label="名称" width="200"></el-table-column>
       <el-table-column prop="createTime" label="创建时间" width="300">

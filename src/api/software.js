@@ -49,3 +49,23 @@ export function getSoftwareDate(id) {
     data: null,
   });
 }
+
+export function getReviewList(data) {
+  return request({
+    url: `/user/SoftwareList`,
+    method: "get",
+    data: null,
+    params: data,
+  });
+}
+
+export function reviewSoftware(id, status) {
+  return request({
+    url: `/user/checkSoftware/${id}`,
+    method: "get",
+    data: null,
+    params: {
+      status,
+    },
+  });
+}

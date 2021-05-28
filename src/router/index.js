@@ -10,6 +10,7 @@ import ChangeSelfItem from "@/pages/User/components/ChangeSelfItem";
 import ArticleManage from "@/pages/User/components/ArticleManage";
 import SoftwareManage from "@/pages/User/components/SoftwareManage";
 import TypeManage from "@/pages/User/components/TypesManage";
+import ReviewSoftware from "@/pages/User/components/ReviewSoftware";
 
 Vue.use(Router);
 
@@ -65,6 +66,11 @@ export default new Router({
           path: "/user/type",
           name: "TypeManage",
           component: TypeManage,
+        },
+        {
+          path: "/user/review",
+          name: "ReviewSoftware",
+          component: ReviewSoftware,
         },
       ],
     },
