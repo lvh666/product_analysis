@@ -2,7 +2,7 @@
   <quill-editor
     class="editor"
     ref="myTextEditor"
-    v-model="content"
+    v-model="contents"
     :options="editorOption"
     @change="onEditorChange($event)"
     theme="snow"
@@ -27,9 +27,15 @@ const toolbar = [
   ["link", "image"], // 链接、图片
 ]; //工具菜单栏配置
 export default {
+  props: {
+    content: {
+      type: String,
+      default: null,
+    },
+  },
   data() {
     return {
-      content: null, //内容
+      contents: null, //内容
       editorOption: {
         modules: {
           toolbar,
@@ -41,10 +47,13 @@ export default {
       },
     };
   },
+  mounted() {
+    this.contents = this.content;
+  },
   methods: {
     // 值发生变化
     onEditorChange(editor) {
-      this.content = editor.html;
+      this.contents = editor.html;
       this.$emit("getContent", editor.html);
     },
   },

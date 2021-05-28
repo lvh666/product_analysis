@@ -15,13 +15,5 @@ export default {
     Header,
     SearchList,
   },
-  data() {
-    return {
-      search: "",
-    };
-  },
-  mounted() {
-    this.search = this.$route.query.value || "";
-  },
 };
 </script>

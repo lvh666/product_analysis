@@ -3,7 +3,7 @@
     <el-drawer ref="drawer" :visible.sync="drawer" size="50%">
       <div slot="title">
         <el-button type="primary" @click="submit" :loading="loading">{{
-          loading ? "提交中 ..." : "发布"
+          loading ? "提交中 ..." : "修改"
         }}</el-button>
       </div>
       <el-form
@@ -39,7 +39,7 @@
           <el-rate v-model="form.score" show-text></el-rate>
         </el-form-item>
         <el-form-item label="内容" prop="content">
-          <QuillEditor @getContent="getContent" />
+          <QuillEditor :content="form.content" @getContent="getContent" />
         </el-form-item>
       </el-form>
     </el-drawer>
@@ -88,7 +88,10 @@
           <el-input v-model="softwareForm.downloadLocation"></el-input>
         </el-form-item>
         <el-form-item label="描述" prop="content">
-          <QuillEditor @getContent="getContent" />
+          <QuillEditor
+            :content="softwareForm.content"
+            @getContent="getContent"
+          />
         </el-form-item>
       </el-form>
     </el-drawer>
@@ -96,18 +99,24 @@
 </template>
 
 <script>
-import QuillEditor from "../QuillEditor";
-import { getSoftware, addArticle } from "@/api/article";
-import { getSoftwareTypes, addSoftware } from "@/api/software";
+import QuillEditor from "@/components/QuillEditor";
+import { getSoftware, changeArticle } from "@/api/article";
+import { getSoftwareTypes, changeSoftware } from "@/api/software";
 
 export default {
-  name: "AddArticle",
+  name: "ChangeDrawer",
+  props: {
+    id: {
+      type: String,
+    },
+  },
   components: {
     QuillEditor,
   },
   data() {
     return {
       user: {},
+      softwareData: {},
       drawer: false,
       software: false,
       loading: false,
@@ -163,28 +172,43 @@ export default {
     };
   },
   watch: {
-    "$store.state.drawer": function (newVal) {
+    "$store.state.changeDrawer": function (newVal) {
       this.drawer = newVal;
+      if (this.drawer) {
+        const item = this.$store.state.articleItem;
+        this.form.value = item.softwareId;
+        this.form.content = item.content;
+        this.form.score = item.score;
+        this.form.title = item.title;
+      }
     },
-    "$store.state.software": function (newVal) {
+    "$store.state.changeSoftware": function (newVal) {
       this.software = newVal;
+      if (this.software) {
+        const item = this.$store.state.softwareItem;
+        this.softwareForm.value = item.category?.id;
+        this.softwareForm.content = item.desc;
+        this.softwareForm.downloadLocation = item.downloadLocation;
+        this.softwareForm.name = item.name;
+        this.softwareForm.shelfDate = new Date(item.shelfDate);
+      }
     },
     drawer(newVal) {
-      this.$store.commit("changeDrawer", { drawer: newVal });
+      this.$store.commit("changeDrawer", { changeDrawer: newVal });
     },
     software(newVal) {
-      this.$store.commit("changeDrawer", { software: newVal });
+      this.$store.commit("changeDrawer", { changeSoftware: newVal });
     },
   },
   created() {
-    this.getSoftwareItem("");
+    this.getSoftwares("");
     this.getTypes();
   },
   mounted() {
     this.user = JSON.parse(localStorage.getItem("user")) || "";
   },
   methods: {
-    async getSoftwareItem(query) {
+    async getSoftwares(query) {
       this.form.loading = true;
       const res = await getSoftware({
         curPage: 1,
@@ -229,14 +253,18 @@ export default {
               title: this.form.title,
               userId: this.user.id,
             };
-            const res = await addArticle(data);
-            console.log(res);
+            const res = await changeArticle(data);
             this.loading = false;
-            this.drawer = false;
-            this.$message({
-              message: "发布成功",
-              type: "success",
-            });
+            if (res.msg === "success") {
+              this.$emit("getArticle");
+              this.drawer = false;
+              this.$message({
+                message: "修改成功",
+                type: "success",
+              });
+            } else {
+              this.$message.error("修改失败");
+            }
           } else {
             this.loading = false;
             this.$message.error("error submit!!");
@@ -253,14 +281,21 @@ export default {
               shelfDate: this.softwareForm.shelfDate.getTime(),
               userId: this.user.id,
             };
-            const res = await addSoftware(data);
-            console.log(res);
+            const res = await changeSoftware(
+              data,
+              this.$store.state.softwareItem.id
+            );
             this.loading = false;
-            this.software = false;
-            this.$message({
-              message: "发布成功",
-              type: "success",
-            });
+            if (res.msg === "success") {
+              this.$emit("getSoftwares");
+              this.software = false;
+              this.$message({
+                message: "修改成功",
+                type: "success",
+              });
+            } else {
+              this.$message.error("修改失败");
+            }
           } else {
             this.loading = false;
             this.$message.error("error submit!!");

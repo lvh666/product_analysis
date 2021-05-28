@@ -16,3 +16,28 @@ export function addArticle(data) {
     data,
   });
 }
+
+export function changeArticle(data, id, score) {
+  return request({
+    url: `/post/change/${id}/${score}`,
+    method: "put",
+    data,
+  });
+}
+
+export function delArticle(id) {
+  return request({
+    url: `/post/del/${id}`,
+    method: "DELETE",
+    data: null,
+  });
+}
+
+export function getArticles(data) {
+  return request({
+    url: `/post/list/user`,
+    method: "get",
+    data: null,
+    params: data,
+  });
+}
