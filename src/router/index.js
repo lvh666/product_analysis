@@ -11,6 +11,7 @@ import ArticleManage from "@/pages/User/components/ArticleManage";
 import SoftwareManage from "@/pages/User/components/SoftwareManage";
 import TypeManage from "@/pages/User/components/TypesManage";
 import ReviewSoftware from "@/pages/User/components/ReviewSoftware";
+import Article from "@/pages/Article";
 
 Vue.use(Router);
 
@@ -40,6 +41,11 @@ export default new Router({
       path: "/product/:id",
       name: "Product",
       component: Product,
+    },
+    {
+      path: "/article/:id",
+      name: "Article",
+      component: Article,
     },
     {
       path: "/user/",

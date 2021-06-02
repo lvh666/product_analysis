@@ -69,3 +69,11 @@ export function reviewSoftware(id, status) {
     },
   });
 }
+
+export function getSoftwareItem(id) {
+  return request({
+    url: `/software/detail/${id}`,
+    method: "get",
+    data: null,
+  });
+}

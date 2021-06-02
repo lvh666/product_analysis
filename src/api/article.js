@@ -41,3 +41,20 @@ export function getArticles(data) {
     params: data,
   });
 }
+
+export function getArticle(id) {
+  return request({
+    url: `/post/detail/${id}`,
+    method: "get",
+    data: null,
+  });
+}
+
+export function getArticlesBySid(data) {
+  return request({
+    url: `/post/list/sid`,
+    method: "get",
+    data: null,
+    params: data,
+  });
+}
