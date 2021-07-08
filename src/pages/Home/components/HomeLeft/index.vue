@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import { getSoftware } from "@/api/article";
+import { getLikeSoftwares } from "@/api/software";
 
 export default {
   name: "HomeLeft",
@@ -28,18 +28,13 @@ export default {
     };
   },
   created() {
-    this.getSoftwareItem("");
+    this.getSoftwareItem();
   },
   methods: {
-    async getSoftwareItem(query) {
+    async getSoftwareItem() {
       this.loading = true;
-      const res = await getSoftware({
-        curPage: 1,
-        pageSize: 4,
-        key: query,
-        categoryId: 0,
-      });
-      this.data = res.data.records;
+      const res = await getLikeSoftwares();
+      this.data = res.data;
       this.loading = false;
     },
   },

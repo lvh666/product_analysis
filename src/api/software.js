@@ -1,5 +1,22 @@
 import request from "@/utils/request";
 
+export function getLikeSoftwares() {
+  return request({
+    url: `/software/guessYouLike`,
+    method: "get",
+    data: null,
+  });
+}
+
+export function getSoftware(data) {
+  return request({
+    url: "/software/listByCategory",
+    method: "get",
+    data: null,
+    params: data,
+  });
+}
+
 export function getSoftwareTypes(data) {
   return request({
     url: "/category/list",

@@ -53,12 +53,26 @@
         ref="softwareForm"
         :model="softwareForm"
         :rules="softwareRules"
+        style="overflow: auto; height: 80%"
         label-width="90px"
-        style="width: 95%"
         size="mini"
       >
         <el-form-item label="软件名称" prop="name">
           <el-input v-model="softwareForm.name"></el-input>
+        </el-form-item>
+        <el-form-item label="版本号" prop="lastVersion">
+          <el-input v-model="softwareForm.lastVersion"></el-input>
+        </el-form-item>
+        <el-form-item label="logo" prop="downloadLocation">
+          <el-upload
+            action="http://121.43.177.93:8098/file/upload"
+            :limit="1"
+            list-type="picture-card"
+            :file-list="fileList"
+            :auto-upload="false"
+          >
+            <i class="el-icon-plus"></i>
+          </el-upload>
         </el-form-item>
         <el-form-item label="软件类别" prop="value">
           <el-select
@@ -75,6 +89,24 @@
             >
             </el-option>
           </el-select>
+          <el-select
+            v-model="softwareForm.value"
+            style="margin-left: 5px"
+            filterable
+            placeholder="请选择软件标签"
+            :loading="softwareForm.loading"
+          >
+            <el-option
+              v-for="item in softwareForm.options"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="系统需求" prop="systemNeed">
+          <el-input v-model="softwareForm.systemNeed"></el-input>
         </el-form-item>
         <el-form-item label="软件时间" prop="shelfDate">
           <el-date-picker
@@ -84,9 +116,18 @@
           >
           </el-date-picker>
         </el-form-item>
+
         <el-form-item label="下载地址" prop="downloadLocation">
-          <el-input v-model="softwareForm.downloadLocation"></el-input>
+          <el-upload
+            action="http://121.43.177.93:8098/file/upload"
+            :on-change="handleChange"
+            :limit="1"
+            :file-list="fileList"
+          >
+            <el-button size="small" type="primary">点击上传</el-button>
+          </el-upload>
         </el-form-item>
+
         <el-form-item label="描述" prop="content">
           <QuillEditor @getContent="getContent" />
         </el-form-item>
@@ -97,8 +138,8 @@
 
 <script>
 import QuillEditor from "../QuillEditor";
-import { getSoftware, addArticle } from "@/api/article";
-import { getSoftwareTypes, addSoftware } from "@/api/software";
+import { addArticle } from "@/api/article";
+import { getSoftwareTypes, getSoftware, addSoftware } from "@/api/software";
 
 export default {
   name: "AddArticle",
@@ -107,6 +148,7 @@ export default {
   },
   data() {
     return {
+      fileList: [],
       user: {},
       drawer: false,
       software: false,
@@ -126,6 +168,10 @@ export default {
         content: "",
         shelfDate: null,
         downloadLocation: "",
+        logo: "",
+        lastVersion: "",
+        size: "",
+        systemNeed: "",
         loading: false,
       },
       rules: {
@@ -159,6 +205,16 @@ export default {
         content: [
           { required: true, message: "请输入软件描述", trigger: "blur" },
         ],
+        lastVersion: [
+          { required: true, message: "请输入软件最新版本号", trigger: "blur" },
+        ],
+        systemNeed: [
+          {
+            required: true,
+            message: "请输入软件系统需求如安卓5.0",
+            trigger: "blur",
+          },
+        ],
       },
     };
   },
@@ -184,6 +240,10 @@ export default {
     this.user = JSON.parse(localStorage.getItem("user")) || "";
   },
   methods: {
+    handleChange(file, fileList) {
+      console.log(this.fileList);
+      this.fileList = fileList.slice(-3);
+    },
     async getSoftwareItem(query) {
       this.form.loading = true;
       const res = await getSoftware({
@@ -193,7 +253,7 @@ export default {
         categoryId: 0,
       });
       this.form.loading = false;
-      this.form.options = res.data.records;
+      this.form.options = res.data;
     },
     async getTypes() {
       this.softwareForm.loading = true;
@@ -245,12 +305,20 @@ export default {
       } else if (this.software) {
         this.$refs["softwareForm"].validate(async (valid) => {
           if (valid) {
+            const software = await this.softwareForm.options.filter(
+              (option) => option.id === this.softwareForm.value
+            );
             const data = {
               categoryId: this.softwareForm.value,
               desc: this.softwareForm.content,
               downloadLocation: this.softwareForm.downloadLocation,
               name: this.softwareForm.name,
               shelfDate: this.softwareForm.shelfDate.getTime(),
+              logo: "",
+              lastVersion: this.softwareForm.lastVersion,
+              size: "",
+              systemNeed: this.softwareForm.systemNeed,
+              type: software.type,
               userId: this.user.id,
             };
             const res = await addSoftware(data);
