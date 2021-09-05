@@ -1,17 +1,25 @@
 <template>
   <div>
+    <el-radio-group v-model="status" size="small" @change="getType">
+      <el-radio-button :label="0">软件</el-radio-button>
+      <el-radio-button :label="1">游戏</el-radio-button>
+    </el-radio-group>
+    <el-button
+      style="margin-left: 10px; float: right"
+      type="primary"
+      @click="addTypeItem"
+    >
+      添加
+    </el-button>
     <el-input
       type="text"
       placeholder="请输入内容"
-      style="width: 220px"
+      style="width: 220px; float: right"
       v-model="name"
       maxlength="10"
       show-word-limit
     >
     </el-input>
-    <el-button style="margin-left: 10px" type="primary" @click="addTypeItem">
-      添加
-    </el-button>
     <el-table v-loading="loading" :data="tableData" style="margin-bottom: 30px">
       <el-table-column prop="id" label="ID" width="200"> </el-table-column>
       <el-table-column prop="name" label="名称" width="200"></el-table-column>
@@ -38,6 +46,9 @@ export default {
       loading: false,
       tableData: [],
       currentPage: 1,
+      status: 0,
+      type: { 0: "软件", 1: "游戏" },
+      typeColors: { 0: "info", 1: "success" },
     };
   },
   mounted() {
@@ -55,21 +66,22 @@ export default {
           message: "请输入添加内容",
         });
       } else {
-        const res = await addType(this.name);
+        const res = await addType(this.name, this.status);
         if (res.msg === "success") {
           this.getType();
           this.$message({
-            message: "删除成功!",
+            message: "添加成功!",
             type: "success",
           });
         } else {
-          this.$message.error("删除失败!");
+          this.$message.error("添加失败!");
         }
       }
     },
     async getType() {
       this.loading = true;
       const res = await getTypes({
+        type: this.status,
         curPage: this.currentPage,
         pageSize: 15,
       });
