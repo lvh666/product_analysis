@@ -67,22 +67,23 @@
           <el-upload
             action="http://121.43.177.93:8098/file/upload"
             :limit="1"
+            :on-change="handleChange"
             list-type="picture-card"
             :file-list="fileList"
-            :auto-upload="false"
           >
             <i class="el-icon-plus"></i>
           </el-upload>
         </el-form-item>
         <el-form-item label="软件类别" prop="value">
           <el-select
-            v-model="softwareForm.value"
+            v-model="softwareForm.type"
             filterable
             placeholder="请选择软件类别"
             :loading="softwareForm.loading"
+            @blur="getTypes(softwareForm.type)"
           >
             <el-option
-              v-for="item in softwareForm.options"
+              v-for="item in softwareForm.types"
               :key="item.id"
               :label="item.name"
               :value="item.id"
@@ -120,9 +121,9 @@
         <el-form-item label="下载地址" prop="downloadLocation">
           <el-upload
             action="http://121.43.177.93:8098/file/upload"
-            :on-change="handleChange"
+            :on-change="handleChange1"
             :limit="1"
-            :file-list="fileList"
+            :file-list="fileList1"
           >
             <el-button size="small" type="primary">点击上传</el-button>
           </el-upload>
@@ -139,7 +140,8 @@
 <script>
 import QuillEditor from "../QuillEditor";
 import { addArticle } from "@/api/article";
-import { getSoftwareTypes, getSoftware, addSoftware } from "@/api/software";
+import { getCategoryByType } from "@/api/types";
+import { getSoftware, addSoftware } from "@/api/software";
 
 export default {
   name: "AddArticle",
@@ -149,17 +151,18 @@ export default {
   data() {
     return {
       fileList: [],
+      fileList1: [],
       user: {},
       drawer: false,
       software: false,
       loading: false,
       form: {
         title: "",
-        options: [],
-        value: "",
         score: 0,
         content: "",
         loading: false,
+        options: [],
+        value: "",
       },
       softwareForm: {
         name: "",
@@ -173,6 +176,17 @@ export default {
         size: "",
         systemNeed: "",
         loading: false,
+        type: 0,
+        types: [
+          {
+            id: 0,
+            name: "软件",
+          },
+          {
+            id: 1,
+            name: "游戏",
+          },
+        ],
       },
       rules: {
         title: [
@@ -200,8 +214,9 @@ export default {
           },
         ],
         downloadLocation: [
-          { required: true, message: "请添加软件下载地址", trigger: "blur" },
+          { required: true, message: "请添加软件下载地址", trigger: "change" },
         ],
+        logo: [{ required: true, message: "请添加logo", trigger: "change" }],
         content: [
           { required: true, message: "请输入软件描述", trigger: "blur" },
         ],
@@ -221,6 +236,9 @@ export default {
   watch: {
     "$store.state.drawer": function (newVal) {
       this.drawer = newVal;
+      if (this.$store.state.softwareItem.user) {
+        this.form.value = this.$store.state.softwareItem.id;
+      }
     },
     "$store.state.software": function (newVal) {
       this.software = newVal;
@@ -233,37 +251,41 @@ export default {
     },
   },
   created() {
-    this.getSoftwareItem("");
-    this.getTypes();
+    this.getSoftwareItem();
+    this.getTypes(this.softwareForm.type);
   },
   mounted() {
     this.user = JSON.parse(localStorage.getItem("user")) || "";
   },
   methods: {
     handleChange(file, fileList) {
-      console.log(this.fileList);
+      console.log(file, this.fileList);
+      if (file.response) this.softwareForm.logo = file.response.data;
       this.fileList = fileList.slice(-3);
     },
-    async getSoftwareItem(query) {
+    handleChange1(file, fileList) {
+      console.log(file, this.fileList1);
+      this.softwareForm.size = file.size / 1024;
+      if (file.response)
+        this.softwareForm.downloadLocation = file.response.data;
+      this.fileList1 = fileList.slice(-3);
+    },
+    async getSoftwareItem() {
       this.form.loading = true;
       const res = await getSoftware({
         curPage: 1,
         pageSize: 30,
-        key: query,
+        key: "",
         categoryId: 0,
       });
       this.form.loading = false;
-      this.form.options = res.data;
+      this.form.options = res.data.records;
     },
-    async getTypes() {
+    async getTypes(id) {
       this.softwareForm.loading = true;
-      const res = await getSoftwareTypes({
-        curPage: 1,
-        pageSize: 30,
-        categoryId: 0,
-      });
+      const res = await getCategoryByType(id);
       this.softwareForm.loading = false;
-      this.softwareForm.options = res.data.records;
+      this.softwareForm.options = res.data;
     },
     getContent(content) {
       this.drawer
@@ -289,6 +311,7 @@ export default {
               title: this.form.title,
               userId: this.user.id,
             };
+            console.log(data);
             const res = await addArticle(data);
             console.log(res);
             this.loading = false;
@@ -305,20 +328,17 @@ export default {
       } else if (this.software) {
         this.$refs["softwareForm"].validate(async (valid) => {
           if (valid) {
-            const software = await this.softwareForm.options.filter(
-              (option) => option.id === this.softwareForm.value
-            );
             const data = {
               categoryId: this.softwareForm.value,
               desc: this.softwareForm.content,
               downloadLocation: this.softwareForm.downloadLocation,
               name: this.softwareForm.name,
               shelfDate: this.softwareForm.shelfDate.getTime(),
-              logo: "",
+              logo: this.softwareForm.logo,
               lastVersion: this.softwareForm.lastVersion,
-              size: "",
+              size: this.softwareForm.size,
               systemNeed: this.softwareForm.systemNeed,
-              type: software.type,
+              type: this.softwareForm.type,
               userId: this.user.id,
             };
             const res = await addSoftware(data);
