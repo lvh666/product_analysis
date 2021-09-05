@@ -1,25 +1,25 @@
 <template>
   <div class="main--container">
     <el-row>
-      <el-col :span="14" class="main">
+      <el-col class="main">
         <HomeLeft />
       </el-col>
-      <el-col :span="7" :offset="1" class="main--aside">
+      <!--  <el-col :span="7" :offset="1" class="main--aside">
         <HomeRight />
-      </el-col>
+      </el-col> -->
     </el-row>
   </div>
 </template>
 
 <script>
 import HomeLeft from "../HomeLeft";
-import HomeRight from "../HomeRight";
+// import HomeRight from "../HomeRight";
 
 export default {
   name: "HomeContent",
   components: {
     HomeLeft,
-    HomeRight,
+    // HomeRight,
   },
 };
 </script>
@@ -27,7 +27,8 @@ export default {
 <style>
 .main--container {
   margin-right: auto;
-  margin-left: 18%;
+  margin-left: 10%;
+  margin-right: 10%;
   padding-left: 15px;
   padding-right: 15px;
 }

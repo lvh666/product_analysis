@@ -1,18 +1,42 @@
 <template>
   <ul class="note-list">
-    <li v-for="item in data" :key="item.id">
-      <div>
-        <a :href="`#/product/${item.id}`" class="title">{{ item.name }}</a>
-        <p class="abstract">{{ item.desc }}</p>
-        <div class="meta">
-          <a :href="`#/product/${item.id}`">{{ item.category.name }}</a>
-          <span><i class="el-icon-success"></i> {{ item.likeCount }}</span>
-          <a :href="`#/product/${item.id}`">
-            <i class="el-icon-error"></i> {{ item.dislikeCount }}
-          </a>
-        </div>
-      </div>
-    </li>
+    <el-row>
+      <el-col
+        :span="3"
+        v-for="(item, index) in data"
+        :key="item.id"
+        :offset="index % 6 > 0 ? 1 : 0"
+      >
+        <el-card
+          :body-style="{
+            padding: '0px',
+            minHeight: '240px',
+            minWidth: '100px',
+          }"
+        >
+          <el-image
+            @click="
+              $router.push({
+                path: `/product/${item.id}`,
+              })
+            "
+            style="width: 100%; height: 150px"
+            :src="item.logo"
+            fit="fill"
+          ></el-image>
+          <div style="padding: 14px">
+            <a :href="`#/product/${item.id}`" class="title">{{ item.name }}</a>
+            <div class="meta">
+              <a :href="`#/product/${item.id}`">{{ item.category.name }}</a>
+              <span><i class="el-icon-success"></i> {{ item.likeCount }}</span>
+              <a :href="`#/product/${item.id}`">
+                <i class="el-icon-error"></i> {{ item.dislikeCount }}
+              </a>
+            </div>
+          </div>
+        </el-card>
+      </el-col>
+    </el-row>
   </ul>
 </template>
 
@@ -42,6 +66,36 @@ export default {
 </script>
 
 <style>
+.time {
+  font-size: 13px;
+  color: #999;
+}
+
+.bottom {
+  margin-top: 13px;
+  line-height: 12px;
+}
+
+.button {
+  padding: 0;
+  float: right;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.clearfix:before,
+.clearfix:after {
+  display: table;
+  content: "";
+}
+
+.clearfix:after {
+  clear: both;
+}
 .note-list {
   margin: 0;
   padding: 0;
