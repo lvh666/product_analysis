@@ -1,6 +1,10 @@
 <template>
   <div>
-    <el-button type="primary" @click="showDrawer">添加</el-button>
+    <el-radio-group v-model="status" size="small" @change="getSoftware">
+      <el-radio-button :label="0">软件</el-radio-button>
+      <el-radio-button :label="1">游戏</el-radio-button>
+    </el-radio-group>
+    <el-button style="float: right" type="primary" @click="showDrawer">添加</el-button>
     <ChangeDrawer @getSoftwares="getSoftware" />
     <el-table v-loading="loading" :data="tableData">
       <el-table-column prop="name" label="软件" width="100"> </el-table-column>
@@ -54,7 +58,7 @@
 </template>
 
 <script>
-import { getSoftwares, delSoftware } from "@/api/software";
+import { getSoftwares, delSoftware, getSoftwaresByType } from "@/api/software";
 import ChangeDrawer from "../ChangeDrawer";
 
 export default {
@@ -70,6 +74,7 @@ export default {
       currentPage: 1,
       drawer: false,
       software: false,
+      status: 0,
     };
   },
   mounted() {
@@ -85,12 +90,21 @@ export default {
     },
     async getSoftware() {
       this.loading = true;
-      const res = await getSoftwares({
-        curPage: this.currentPage,
-        key: "",
-        pageSize: 10,
-        status: 1,
-      });
+      const user = JSON.parse(localStorage.getItem("user")) || "";
+      const res =
+        user.role == 1
+          ? await getSoftwaresByType({
+              curPage: this.currentPage,
+              pageSize: 10,
+              type: this.status,
+            })
+          : await getSoftwares({
+              curPage: this.currentPage,
+              key: "",
+              pageSize: 10,
+              status: 1,
+              type: this.status,
+            });
       this.total = res.data.total;
       this.tableData = res.data.records;
       this.loading = false;
