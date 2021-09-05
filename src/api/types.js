@@ -16,3 +16,11 @@ export function addType(name) {
     data: null,
   });
 }
+
+export function getCategoryByType(id) {
+  return request({
+    url: `/category//listByType?type=${id}`,
+    method: "get",
+    data: null,
+  });
+}
