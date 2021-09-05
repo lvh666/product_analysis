@@ -9,9 +9,9 @@ export function getTypes(data) {
   });
 }
 
-export function addType(name) {
+export function addType(name, type) {
   return request({
-    url: `/category/add/${name}`,
+    url: `/category/add/${type}/${name}`,
     method: "post",
     data: null,
   });
@@ -19,7 +19,7 @@ export function addType(name) {
 
 export function getCategoryByType(id) {
   return request({
-    url: `/category//listByType?type=${id}`,
+    url: `/category/listByType?type=${id}`,
     method: "get",
     data: null,
   });
