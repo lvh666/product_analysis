@@ -87,6 +87,7 @@ export default {
       this.loading = true;
       const res = await getSoftwares({
         curPage: this.currentPage,
+        key: "",
         pageSize: 10,
         status: 1,
       });

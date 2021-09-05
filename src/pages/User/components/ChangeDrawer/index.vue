@@ -46,25 +46,55 @@
     <el-drawer ref="software" :visible.sync="software" size="50%">
       <div slot="title">
         <el-button type="primary" @click="submit" :loading="loading">{{
-          loading ? "提交中 ..." : "发布"
+          loading ? "提交中 ..." : "修改"
         }}</el-button>
       </div>
       <el-form
         ref="softwareForm"
         :model="softwareForm"
         :rules="softwareRules"
+        style="overflow: auto; height: 80%"
         label-width="90px"
-        style="width: 95%"
         size="mini"
       >
         <el-form-item label="软件名称" prop="name">
           <el-input v-model="softwareForm.name"></el-input>
         </el-form-item>
+        <el-form-item label="版本号" prop="lastVersion">
+          <el-input v-model="softwareForm.lastVersion"></el-input>
+        </el-form-item>
+        <el-form-item label="logo" prop="downloadLocation">
+          <el-upload
+            action="http://121.43.177.93:8098/file/upload"
+            :limit="1"
+            :on-change="handleChange"
+            list-type="picture-card"
+            :file-list="fileList"
+          >
+            <i class="el-icon-plus"></i>
+          </el-upload>
+        </el-form-item>
         <el-form-item label="软件类别" prop="value">
           <el-select
-            v-model="softwareForm.value"
+            v-model="softwareForm.type"
             filterable
             placeholder="请选择软件类别"
+            :loading="softwareForm.loading"
+            @blur="getTypes(softwareForm.type)"
+          >
+            <el-option
+              v-for="item in softwareForm.types"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            >
+            </el-option>
+          </el-select>
+          <el-select
+            v-model="softwareForm.value"
+            style="margin-left: 5px"
+            filterable
+            placeholder="请选择软件标签"
             :loading="softwareForm.loading"
           >
             <el-option
@@ -76,6 +106,9 @@
             </el-option>
           </el-select>
         </el-form-item>
+        <el-form-item label="系统需求" prop="systemNeed">
+          <el-input v-model="softwareForm.systemNeed"></el-input>
+        </el-form-item>
         <el-form-item label="软件时间" prop="shelfDate">
           <el-date-picker
             v-model="softwareForm.shelfDate"
@@ -84,13 +117,21 @@
           >
           </el-date-picker>
         </el-form-item>
+
         <el-form-item label="下载地址" prop="downloadLocation">
-          <el-input v-model="softwareForm.downloadLocation"></el-input>
+          <el-upload
+            action="http://121.43.177.93:8098/file/upload"
+            :on-change="handleChange1"
+            :limit="1"
+            :file-list="fileList1"
+          >
+            <el-button size="small" type="primary">点击上传</el-button>
+          </el-upload>
         </el-form-item>
         <el-form-item label="描述" prop="content">
           <QuillEditor
-            :content="softwareForm.content"
             @getContent="getContent"
+            :content="softwareForm.content"
           />
         </el-form-item>
       </el-form>
@@ -101,7 +142,8 @@
 <script>
 import QuillEditor from "@/components/QuillEditor";
 import { getSoftware, changeArticle } from "@/api/article";
-import { getSoftwareTypes, changeSoftware } from "@/api/software";
+import { changeSoftware } from "@/api/software";
+import { getCategoryByType } from "@/api/types";
 
 export default {
   name: "ChangeDrawer",
@@ -115,6 +157,8 @@ export default {
   },
   data() {
     return {
+      fileList: [],
+      fileList1: [],
       user: {},
       softwareData: {},
       drawer: false,
@@ -135,7 +179,22 @@ export default {
         content: "",
         shelfDate: null,
         downloadLocation: "",
+        logo: "",
+        lastVersion: "",
+        size: "",
+        systemNeed: "",
         loading: false,
+        type: 0,
+        types: [
+          {
+            id: 0,
+            name: "软件",
+          },
+          {
+            id: 1,
+            name: "游戏",
+          },
+        ],
       },
       rules: {
         title: [
@@ -163,10 +222,21 @@ export default {
           },
         ],
         downloadLocation: [
-          { required: true, message: "请添加软件下载地址", trigger: "blur" },
+          { required: true, message: "请添加软件下载地址", trigger: "change" },
         ],
+        logo: [{ required: true, message: "请添加logo", trigger: "change" }],
         content: [
           { required: true, message: "请输入软件描述", trigger: "blur" },
+        ],
+        lastVersion: [
+          { required: true, message: "请输入软件最新版本号", trigger: "blur" },
+        ],
+        systemNeed: [
+          {
+            required: true,
+            message: "请输入软件系统需求如安卓5.0",
+            trigger: "blur",
+          },
         ],
       },
     };
@@ -189,8 +259,20 @@ export default {
         this.softwareForm.value = item.category?.id;
         this.softwareForm.content = item.desc;
         this.softwareForm.downloadLocation = item.downloadLocation;
+        this.fileList1 = [];
+        this.fileList1.push({
+          name: "downloadLocation",
+          url: item.downloadLocation,
+        });
         this.softwareForm.name = item.name;
         this.softwareForm.shelfDate = new Date(item.shelfDate);
+        this.softwareForm.logo = item.logo;
+        this.fileList = [];
+        this.fileList.push({ name: "logo", url: item.logo });
+        this.softwareForm.lastVersion = item.lastVersion;
+        this.softwareForm.systemNeed = item.systemNeed;
+        this.softwareForm.type = item.type;
+        this.softwareForm.size = item.size;
       }
     },
     drawer(newVal) {
@@ -201,33 +283,41 @@ export default {
     },
   },
   created() {
-    this.getSoftwares("");
-    this.getTypes();
+    this.getSoftwares();
+    this.getTypes(this.softwareForm.type);
   },
   mounted() {
     this.user = JSON.parse(localStorage.getItem("user")) || "";
   },
   methods: {
-    async getSoftwares(query) {
+    handleChange(file, fileList) {
+      console.log(file, this.fileList);
+      if (file.response) this.softwareForm.logo = file.response.data;
+      this.fileList = fileList.slice(-3);
+    },
+    handleChange1(file, fileList) {
+      console.log(file, this.fileList1);
+      this.softwareForm.size = file.size / 1024;
+      if (file.response)
+        this.softwareForm.downloadLocation = file.response.data;
+      this.fileList1 = fileList.slice(-3);
+    },
+    async getSoftwares() {
       this.form.loading = true;
       const res = await getSoftware({
         curPage: 1,
         pageSize: 30,
-        key: query,
+        key: "",
         categoryId: 0,
       });
       this.form.loading = false;
       this.form.options = res.data.records;
     },
-    async getTypes() {
+    async getTypes(id) {
       this.softwareForm.loading = true;
-      const res = await getSoftwareTypes({
-        curPage: 1,
-        pageSize: 30,
-        categoryId: 0,
-      });
+      const res = await getCategoryByType(id);
       this.softwareForm.loading = false;
-      this.softwareForm.options = res.data.records;
+      this.softwareForm.options = res.data;
     },
     getContent(content) {
       this.drawer
@@ -279,6 +369,11 @@ export default {
               downloadLocation: this.softwareForm.downloadLocation,
               name: this.softwareForm.name,
               shelfDate: this.softwareForm.shelfDate.getTime(),
+              logo: this.softwareForm.logo,
+              lastVersion: this.softwareForm.lastVersion,
+              size: this.softwareForm.size,
+              systemNeed: this.softwareForm.systemNeed,
+              type: this.softwareForm.type,
               userId: this.user.id,
             };
             const res = await changeSoftware(
