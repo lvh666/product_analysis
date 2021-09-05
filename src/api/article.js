@@ -2,7 +2,7 @@ import request from "@/utils/request";
 
 export function getSoftware(data) {
   return request({
-    url: "/software/list",
+    url: "/software/listByCategory",
     method: "get",
     data: null,
     params: data,
