@@ -9,11 +9,11 @@
         <i class="el-icon-monitor"></i>
         <span slot="title">软件管理</span>
       </el-menu-item>
-      <el-menu-item index="type">
+      <el-menu-item v-if="user.role == 1" index="type">
         <i class="el-icon-price-tag"></i>
         <span slot="title">软件类别管理</span>
       </el-menu-item>
-      <el-submenu index="5">
+      <el-submenu v-if="user.role == 1" index="5">
         <template slot="title">
           <i class="el-icon-time"></i>
           <span>审核</span>
@@ -32,10 +32,13 @@ export default {
   data() {
     return {
       path: "",
+      user: {},
     };
   },
   mounted() {
     this.path = this.$route.path.split("/")[2];
+    this.user = JSON.parse(localStorage.getItem("user")) || "";
+    console.log(this.user);
   },
 };
 </script>

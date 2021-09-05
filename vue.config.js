@@ -1,5 +1,4 @@
 module.exports = {
-  mode: process.env.ENV,
   publicPath: "./", //静态资源找不到
   runtimeCompiler: true,
   devServer: {
