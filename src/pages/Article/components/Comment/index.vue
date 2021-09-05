@@ -1,106 +1,17 @@
 <template>
-  <el-card class="comment-list" style="margin-top: 30px">
-    <div class="comment-title">评论</div>
-    <div class="comment-words">
-      <el-row
-        type="flex"
-        class="row-bg"
-        style="margin-top: 10px"
-        justify="center"
-        v-if="total === 0"
-      >
-        <el-col :span="20">
-          <div style="float: left">
-            <span style="margin-top: 50px">暂无评论</span>
-          </div>
-        </el-col>
-      </el-row>
-
-      <el-row
-        type="flex"
-        class="row-bg"
-        style="margin-top: 10px"
-        justify="center"
-        v-for="item in comments"
-        :key="item.id"
-      >
-        <el-col :span="20">
-          <el-card shadow="never">
-            <div class="demo-basic--circle" style="width: 30px; float: left">
-              <div class="block">
-                <el-avatar size="small" :src="item.user.avatar">{{
-                  item.user.nickName
-                }}</el-avatar>
-              </div>
-            </div>
-            <div style="float: left" v-if="item.content">
-              <span style="font-size: 12px; color: green; fontweight: bold"
-                >{{ item.user.nickName }} -
-                {{ new Date(item.createTime).toLocaleString() }}</span
-              >
-              <br />
-              <div style="margin-top: 10px"></div>
-              <span v-html="item.content.replace(/\n/g, '<br>')"></span>
-            </div>
-          </el-card>
-        </el-col>
-      </el-row>
-      <el-row
-        type="flex"
-        class="row-bg"
-        style="margin-top: 10px"
-        v-if="total !== 0"
-      >
-        <el-col :span="22">
-          <el-pagination
-            @current-change="handleCurrentChange"
-            background
-            layout="prev, pager, next"
-            :page-size="30"
-            style="float: right"
-            :total="total"
-          >
-          </el-pagination>
-        </el-col>
-      </el-row>
-      <el-row
-        type="flex"
-        class="row-bg"
-        style="margin-top: 10px"
-        justify="center"
-        v-if="user"
-      >
-        <el-col :span="20">
-          <el-card shadow="never">
-            <div>
-              <div class="form-group">
-                <label>评论内容</label>
-                <el-input
-                  type="textarea"
-                  :rows="4"
-                  v-model="content"
-                ></el-input>
-              </div>
-              <div>
-                <el-button
-                  style="float: right"
-                  type="success"
-                  @click="postComments"
-                  plain
-                  >发表评论</el-button
-                >
-              </div>
-            </div>
-          </el-card>
-        </el-col>
-      </el-row>
-    </div>
+  <el-card class="comment-list" style="margin-top: 10px" v-if="user">
+    <Comments />
   </el-card>
 </template>
 
 <script>
+import Comments from "@/components/Comments";
+
 export default {
   name: "Comment",
+  components: {
+    Comments,
+  },
   data() {
     return {
       user: {},

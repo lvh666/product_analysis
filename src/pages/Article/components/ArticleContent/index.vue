@@ -53,6 +53,7 @@ export default {
     async getArticleItem() {
       const res = await getArticle(this.$route.params.id);
       this.item = res.data;
+      this.$store.commit("getDrawerItem", { articleItem: res.data });
     },
     dateFormat(date) {
       return (
