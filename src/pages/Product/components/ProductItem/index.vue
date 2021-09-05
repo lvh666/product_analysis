@@ -1,21 +1,28 @@
 <template>
   <div class="product-list">
-    <el-card class="product-software">
+    <el-card class="product-software" v-if="data">
       <div class="product-price">
         <span>{{ data.name }} </span>
+        <div>
+          <el-image
+            style="width: 100px; height: 100px"
+            :src="data.logo"
+            fit="fill"
+          ></el-image>
+        </div>
       </div>
-      <br />
-      <div>类型：{{ data.category.name }}</div>
-      <div>下载地址：{{ data.downloadLocation }}</div>
-      <div>好评数：{{ data.likeCount }}</div>
-      <div>差评数：{{ data.dislikeCount }}</div>
+      <div>类型：{{ types[data.category.type] }}-{{ data.category.name }}</div>
+      <div>
+        下载链接：<a :href="data.downloadLocation">{{
+          data.downloadLocation
+        }}</a>
+      </div>
+      <div>好评数：{{ data.likeCount }} 差评数：{{ data.dislikeCount }}</div>
       <div style="font-weight: bold; margin: 10px 0 10px 0">描述</div>
       <div v-html="data.desc"></div>
     </el-card>
 
-    <el-card class="product-card">
-      <ProductLeft />
-    </el-card>
+    <ProductLeft />
   </div>
 </template>
 
@@ -31,6 +38,7 @@ export default {
     return {
       data: null,
       chartLine: null,
+      types: ["软件", "游戏"],
     };
   },
   mounted() {
@@ -40,6 +48,7 @@ export default {
     async getSoftwareItem() {
       const res = await getSoftwareItem(this.$route.params.id);
       this.data = res.data;
+      this.$store.commit("getDrawerItem", { softwareItem: res.data });
     },
   },
 };

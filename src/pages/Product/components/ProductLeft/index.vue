@@ -1,28 +1,33 @@
 <template>
-  <ul class="note-list">
-    <li v-for="item in data" :key="item.id">
-      <div>
-        <div class="author">
-          <a class="avatar">
-            <el-avatar size="small" :src="item.userInfoDto.avatar"></el-avatar>
-          </a>
-          <div class="info">
-            <a class="nickname">{{ item.userInfoDto.username }}</a>
-            <span class="time">
-              {{ dateFormat(new Date(item.createTime)) }}
-            </span>
+  <el-card class="product-card" v-if="data.length">
+    <ul class="note-list">
+      <li v-for="item in data" :key="item.id">
+        <div>
+          <div class="author">
+            <a class="avatar">
+              <el-avatar
+                size="small"
+                :src="item.userInfoDto.avatar"
+              ></el-avatar>
+            </a>
+            <div class="info">
+              <a class="nickname">{{ item.userInfoDto.username }}</a>
+              <span class="time">
+                {{ dateFormat(new Date(item.createTime)) }}
+              </span>
+            </div>
+          </div>
+          <a :href="`#/article/${item.id}`" class="title">{{ item.title }}</a>
+          <p class="abstract">{{ item.content }}</p>
+          <span><el-rate v-model="item.score" show-text disabled /></span>
+          <div class="meta">
+            <a :href="`#/article/${item.id}`">{{ item.categoryName }}</a>
+            <a :href="`#/article/${item.id}`">{{ item.softwareName }}</a>
           </div>
         </div>
-        <a :href="`#/article/${item.id}`" class="title">{{ item.title }}</a>
-        <p class="abstract">{{ item.content }}</p>
-        <span><el-rate v-model="item.score" show-text disabled /></span>
-        <div class="meta">
-          <a :href="`#/article/${item.id}`">{{ item.categoryName }}</a>
-          <a :href="`#/article/${item.id}`">{{ item.softwareName }}</a>
-        </div>
-      </div>
-    </li>
-  </ul>
+      </li>
+    </ul>
+  </el-card>
 </template>
 
 <script>
@@ -68,6 +73,30 @@ export default {
 </script>
 
 <style>
+.product-list {
+  width: 80%;
+  margin: 0 auto;
+}
+.product-card {
+  margin-top: 10px;
+}
+.v-card {
+  height: 110px;
+  border-bottom: 1px solid black;
+}
+.clearfix:before,
+.clearfix:after {
+  display: table;
+  content: "";
+}
+.clearfix:after {
+  clear: both;
+}
+
+.box-card {
+  width: 75%;
+}
+
 .note-list {
   margin: 0;
   padding: 0;
@@ -85,7 +114,7 @@ p {
 .note-list li {
   position: relative;
   width: 100%;
-  margin: 0 0 15px;
+  margin: 0 0 10px;
   padding: 15px 2px 20px 0;
   border-bottom: 1px solid #f0f0f0;
   word-wrap: break-word;
@@ -128,7 +157,7 @@ p {
 }
 
 .note-list .author {
-  margin-bottom: 14px;
+  margin-bottom: 10px;
   font-size: 13px;
 }
 
