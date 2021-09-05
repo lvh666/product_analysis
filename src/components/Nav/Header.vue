@@ -14,7 +14,10 @@
             <img class="i-box-header i-user" src="../../assets/user.png" />
           </a>
           <a @click="toAddress('user')" v-if="user.username">
-            <div class="span-box-header name-user show">
+            <div
+              class="span-box-header name-user show"
+              style="margin-right: 2px"
+            >
               {{ user.username }}
             </div>
           </a>
@@ -23,7 +26,8 @@
               @click="toAddress('login')"
               class="span-box-header span-user"
               v-if="!user"
-              >登录
+            >
+              登录
             </span>
             <span @click="exit()" class="span-box-header span-user" v-else>
               退出登录
