@@ -343,7 +343,11 @@ export default {
               title: this.form.title,
               userId: this.user.id,
             };
-            const res = await changeArticle(data);
+            const res = await changeArticle(
+              data,
+              this.$store.state.articleItem.id,
+              this.$store.state.articleItem.score
+            );
             this.loading = false;
             if (res.msg === "success") {
               this.$emit("getArticle");
