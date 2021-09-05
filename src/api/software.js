@@ -94,3 +94,12 @@ export function getSoftwareItem(id) {
     data: null,
   });
 }
+
+export function getSoftwaresByType(data) {
+  return request({
+    url: "/software/listByType",
+    method: "get",
+    data: null,
+    params: data,
+  });
+}
